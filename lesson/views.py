@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from rest_framework.views import APIView
@@ -8,58 +10,69 @@ from .permissions import isOwner
 from .serializers import *
 
 
-class LessonsView(APIView):
-    permission_classes = [IsAuthenticated, isOwner]
-    id = None
-    user = None
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_lessons(request):
+    user = request.user
+    user_id = request.data['id']
 
-    def post(self, request):
-        self.user = request.user
-        self.id = request.data['id']
-        if self.user.is_student:
-            lesson = Enrollment.objects.filter(student_id=self.id)
-            serializer = LessonSerializer(lesson, many=True)
-            return Response(serializer.data)
-        else:
-            print(self.user.pk)
-            lesson = Enrollment.objects.filter(teacher_id=self.id)
-            print(self.user.id)
-            serializer = LessonSerializer(lesson, many=True)
-            return Response(serializer.data)
-
-
-class LessonsInfoView(APIView):
-    permission_classes = [IsAuthenticated, isOwner]
-    id = None
-    user = None
-
-    def post(self, request):
-        self.id = request.data['id']
-        lesson = Enrollment.objects.filter(lesson_id=self.id)
-        serializer = LessonInfoSerializer(lesson, many=True)
+    if request.method == 'POST' and user.is_student:
+        lesson = Enrollment.objects.filter(student_id=user_id)
+        serializer = LessonSerializer(lesson, many=True)
         return Response(serializer.data)
 
-"""
-    def post(self, request, format=None):
-        serializer = ProductCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            saved_obj = serializer.save()
-            response_data = ProductDisplaySerializer(saved_obj).data
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-"""
+    elif request.method == 'POST':
+        lesson = Enrollment.objects.filter(teacher_id=user_id)
+        serializer = LessonSerializer(lesson, many=True)
+        return Response(serializer.data)
 
 
-class LessonNotesView(APIView):
-    permission_classes = [IsAuthenticated, isOwner]
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def lesson_info(request, data_id):  # not ekliyon
+    if request.method == 'GET':
+        lesson = Enrollment.objects.filter(lesson=data_id)
+        serializer = LessonInfoSerializer(lesson, many=True)
+        if not lesson.exists():
+            data = {"message": "Böyle bir şey yok."}
+            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        user = request.user
-        if user.is_student:
-            notes = LessonNotes.objects.filter(lesson_id=request.data['id'])
-            serializer = LessonNotesSerializer(notes, many=True)
-            return Response(serializer.data)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def lesson_notes(request, data_id):  # not ekliyon
+    if request.method == 'GET':
+        notes = LessonNotes.objects.filter(lesson=data_id)
+        if not notes.exists():
+            data = {"message": "Böyle bir şey yok."}
+            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+        serializer = LessonNotesSerializer(notes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'DELETE':
+        notes = LessonNotes.objects.filter(pk=data_id) #not pk geliyo
+        if not notes.exists():
+            data = {"message": "Böyle bir şey yok."}
+            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+        operation = notes.delete()
+        data = {}
+        if operation:
+            data["message"] = "Duyuru silindi."
         else:
-            notes = LessonNotes.objects.filter(lesson_id=request.data['id'])
-            serializer = LessonNotesSerializer(notes, many=True)
-            return Response(serializer.data)
+            data["message"] = "Duyuru silinemedi."
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        ...
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_lesson_notes(request):
+    if request.method == 'POST':
+        serializer = LessonNotesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

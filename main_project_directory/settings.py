@@ -26,24 +26,13 @@ SECRET_KEY = ')@oz(4^!_zz$+g27&k8y@!q=cq=q7$6k9tp4#0x$cdwx0&9h8m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '*'
-]
-
+ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
 # corspolicy icin
 """
 Access to XMLHttpRequest at 'http://localhost:8000/lmsApi/rest-auth/login/' from origin 'http://localhost:8080' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 """
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True # cookie için
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:8080',
-    'http://192.168.0.6:8080',
-)
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-]
 # jwt
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
