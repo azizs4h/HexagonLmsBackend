@@ -1,12 +1,9 @@
+from builtins import print
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-
-from .permissions import isOwner
 from .serializers import *
 
 
@@ -71,7 +68,7 @@ def lesson_notes(request, data_id):  # not ekliyon
 @permission_classes([IsAuthenticated])
 def add_lesson_notes(request):
     if request.method == 'POST':
-        serializer = LessonNotesSerializer(data=request.data)
+        serializer = AddLessonNoteSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

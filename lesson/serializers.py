@@ -21,12 +21,6 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         model = Enrollment
         fields = '__all__'
 
-    def create(self, validated_data):
-        ...
-
-    def update(self, validated_data):
-        ...
-
 
 class LessonSerializer(serializers.ModelSerializer):
     lesson = LessonsSerializer()
@@ -34,12 +28,6 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = ['lesson']
-
-    def create(self, validated_data):
-        ...
-
-    def update(self, validated_data):
-        ...
 
 
 class LessonInfoSerializer(serializers.ModelSerializer):
@@ -50,17 +38,17 @@ class LessonInfoSerializer(serializers.ModelSerializer):
         model = Enrollment
         fields = ['lesson', 'teacher']
 
-    def create(self, validated_data):
-        ...
-
-    def update(self, validated_data):
-        ...
-
 
 class LessonNotesSerializer(serializers.ModelSerializer):
     lesson = LessonsSerializer()
     teacher = TeacherSerializer()
 
+    class Meta:
+        model = LessonNotes
+        fields = '__all__'
+
+
+class AddLessonNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonNotes
         fields = '__all__'

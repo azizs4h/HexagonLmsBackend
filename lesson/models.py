@@ -32,7 +32,7 @@ class LessonNotes(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
 
-    note_publish_date = models.DateField()
+    note_publish_date = models.DateField(blank=True, null=True, auto_now_add=True)
     note_title = models.CharField(max_length=255)
     note_description = models.TextField()
     file = models.FileField(blank=True, null=True,)
