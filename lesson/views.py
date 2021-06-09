@@ -7,18 +7,17 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_lessons(request):
+def get_lessons(request, user_id):
     user = request.user
-    user_id = request.data['id']
 
-    if request.method == 'POST' and user.is_student:
+    if request.method == 'GET' and user.is_student:
         lesson = Enrollment.objects.filter(student_id=user_id)
         serializer = LessonSerializer(lesson, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
+    elif request.method == 'GET':
         lesson = Enrollment.objects.filter(teacher_id=user_id)
         serializer = LessonSerializer(lesson, many=True)
         return Response(serializer.data)
@@ -33,7 +32,7 @@ def lesson_info(request, data_id):  # not ekliyon
         if not lesson.exists():
             data = {"message": "Böyle bir şey yok."}
             return Response(data=data, status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data[0], status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -48,7 +47,7 @@ def lesson_notes(request, data_id):  # not ekliyon
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'DELETE':
-        notes = LessonNotes.objects.filter(pk=data_id) #not pk geliyo
+        notes = LessonNotes.objects.filter(pk=data_id)  # not pk geliyo
         if not notes.exists():
             data = {"message": "Böyle bir şey yok."}
             return Response(data=data, status=status.HTTP_404_NOT_FOUND)
@@ -60,16 +59,14 @@ def lesson_notes(request, data_id):  # not ekliyon
             data["message"] = "Duyuru silinemedi."
         return Response(data=data, status=status.HTTP_200_OK)
 
-    elif request.method == 'PUT':
-        ...
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_lesson_notes(request):
     if request.method == 'POST':
-        serializer = AddLessonNoteSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print(request.FILES)
+        # serializer = AddLessonNoteSerializer(data=request.data)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
