@@ -8,10 +8,3 @@ class MeetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meet
         fields = '__all__'
-
-
-class AddMeetSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Meet
-        fields = '__all__'
